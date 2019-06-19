@@ -1,1 +1,462 @@
-<h1>hello!<h1>
+<style>
+.button {
+    background-color: #21c6b3;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: arial;
+    display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.button:hover {
+    background-color: #0d5a51;
+}
+#Header {
+    font-family: arial;
+    font-size: 300%;
+    display: block;
+}
+
+.column {
+    float: left;
+    padding: 10px;
+    display: inline;
+}
+
+.left {
+  width: auto;
+  height: auto;
+  background-color:#138275;
+}
+
+.right {
+  position: sticky;
+  top: 5px;
+  outline: 5px dashed #138275;
+  margin-left: 10px;
+  margin-top: 5px;
+  display: inline;
+  width: auto;
+  max-width: 70%;
+}
+table {
+    font-family: arial;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+
+<div class="column left">
+
+<RadialWind style="background-color: #0d5a51;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 16px;
+    font-family: arial;
+    display: block;"> RadialCloth </RadialWind>
+
+<button onclick="myFunction(this)" class="button" style="margin-top: 10px;"
+name=
+"RadialCloth.Pause"
+description=
+"Pause cloth simulation if it wasn't paused already. Great for pause menus, bullet-time, and hitlag."
+functions=
+"public void <b>Pause</b>();"
+parameters=
+"None"
+>
+Pause()
+</button>
+
+<button onclick="myFunction(this)" class="button" style="margin-top: 10px;"
+name=
+"RadialCloth.Play"
+description=
+"Resume cloth simulation if it was already paused."
+functions=
+"public void <b>Play</b>();"
+parameters=
+"None"
+>
+Play()
+</button>
+
+<button onclick="myFunction(this)" class="button" style="margin-top: 10px;"
+name=
+"RadialCloth.Stop"
+description=
+"Stops cloth simulation, reverting the mesh/skinned mesh to it's original state."
+functions=
+"public void <b>Stop</b>();"
+parameters=
+"None"
+>
+Stop()
+</button>
+
+<div style="width:auto;height:25px;background-color: #138275;"></div>
+
+<button onclick="myFunctionClass(this)" class="button" style="margin-top: 10px;"
+name=
+"RadialCloth.Vertices"
+description=
+"Array of raw data for each vertex on the mesh. Useful for editing specific vertex data during runtime, but not recommended due to complexity."
+functions=
+"VERTEX[ ] <b>Vertices</b>;"
+parameters=
+"<b>VERTEX</b><table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Enabled</td>
+    <td>bool</td>
+    <td>Is this vertex a disabled type vertex?</td>
+  </tr>
+  <tr>
+    <td>Index</td>
+    <td>int[]</td>
+    <td>Which verices are affected by this Radial VERTEX?Array of indices into the raw mesh vertex array.</td>
+  </tr>
+  <tr>
+    <td>Neighbors</td>
+    <td>int []</td>
+    <td>Indices into the main Vertices array to define this VERTEX's neighbor VERTEXs.</td>
+  </tr>
+  <tr>
+    <td>NeighborD</td>
+    <td>float[]</td>
+    <td>Array of distances from Neighbors, saved on start. Editing may cause problems with Neighbor based cloth.</td>
+  </tr>
+  <tr>
+    <td>Offset</td>
+    <td>Vector3</td>
+    <td>Saved offset relative to neighbors. Editing may cause problems with Neighbor based cloth.</td>
+  </tr>
+  <tr>
+    <td>POffset</td>
+    <td>Vector3</td>
+    <td>Offset of this VERTEX from it's home position. used in parent based cloth.</td>
+  </tr>
+  <tr>
+    <td>HomePosition</td>
+    <td>Vector3</td>
+    <td>Initial position of this VERTEX's home position. Does not change.</td>
+  </tr>
+  <tr>
+    <td>Velocity</td>
+    <td>Vector3</td>
+    <td>Global velocity of this VERTEX.</td>
+  </tr>
+  <tr>
+    <td>Position</td>
+    <td>Vector3</td>
+    <td>Global position of this VERTEX.</td>
+  </tr>
+  <tr>
+    <td>homepos</td>
+    <td>Vector3</td>
+    <td>Calculated home position. Changes each frame.</td>
+  </tr>
+  <tr>
+    <td>Radius</td>
+    <td>float</td>
+    <td>Distance this VERTEX can stray from it's homepos.</td>
+  </tr>
+  <tr>
+    <td>Stiffness</td>
+    <td>float</td>
+    <td>How fast does this VERTEX move towards it's neighbors during Neighbor based cloth?</td>
+  </tr>
+  <tr>
+    <td>Bounciness</td>
+    <td>float</td>
+    <td>How much velocity is maintained when VERTEX reaches max distance?</td>
+  </tr>
+  <tr>
+    <td>FadeSpeed</td>
+    <td>float</td>
+    <td>Raw lerp value for changes in velocity.</td>
+  </tr>
+  <tr>
+    <td>MaxSpeed</td>
+    <td>float</td>
+    <td>Max magnitude velocity can reach.</td>
+  </tr>
+  <tr>
+    <td>NeighborBased</td>
+    <td>bool</td>
+    <td>Is this VERTEX a Neighbor based VERTEX?</td>
+  </tr>
+  <tr>
+    <td>ParentBased</td>
+    <td>bool</td>
+    <td>Is this VERTEX a Parent based VERTEX?</td>
+  </tr>
+  <tr>
+    <td>ParentWeight</td>
+    <td>float</td>
+    <td>Float multiplied by POffset when calculating parent based position.</td>
+  </tr>
+  <tr>
+    <td>ParentIndex</td>
+    <td>int</td>
+    <td>Index into the main Vertices array defining which VERTEX this VERTEX will copy during parent based cloth.</td>
+  </tr>
+  <tr>
+    <td>Triangles</td>
+    <td>int</td>
+    <td>Array of triangles this VERTEX belongs to. Used when initially calculating neighbors.</td>
+  </tr>
+  <tr>
+    <td>Selected</td>
+    <td>bool</td>
+    <td>Is this vertex currently selected in the scene view?</td>
+  </tr>
+  <tr>
+    <td>SelectedBox</td>
+    <td>bool</td>
+    <td>Is this vertex currently being selected by the scene view selection box?</td>
+  </tr>
+  <tr>
+    <td>colliders</td>
+    <td>Collider[]</td>
+    <td>Array of colliders this VERTEX collides with.</td>
+  </tr>
+  <tr>
+    <td>ParentPosition</td>
+    <td>Vector3</td>
+    <td>Saved position used to optimize parent based cloth.</td>
+  </tr>
+  <tr>
+    <td>ParentPosition</td>
+    <td>Vector3</td>
+    <td>Saved position used to optimize parent based cloth.</td>
+  </tr>
+  <tr>
+    <td>CalculatedData</td>
+    <td>bool</td>
+    <td>Has this vertice been used to calculate a parent based VERTEX?</td>
+  </tr>
+  <tr>
+    <td>CollisionGroup</td>
+    <td>string</td>
+    <td>Collision group this vertex will be a part of if Collision Groups are currently being used.</td>
+  </tr>
+  </table>"
+>
+Vertices
+</button>
+
+<button onclick="myFunctionClass(this)" class="button"
+style="margin-top: 10px;"
+name=
+"RadialCloth.Optimization"
+description=
+"Class containing variables that optimize RadialCloth."
+functions=
+"RADIALOPTIMIZATION <b>Optimization</b>"
+parameters=
+"<b>RADIALOPTIMIZATION</b><table>
+  <tr>
+    <th>Name</td>
+    <th>Type</td>
+    <th>Description</td>
+  </tr>
+  <tr>
+    <td>RadialDelay</td>
+    <td>int</td>
+    <td>Delays Radial-based simulation by # of frames.</td>
+  </tr>
+  <tr>
+    <td>NeighborDelay</td>
+    <td>int</td>
+    <td>Delays Neighbor-based simulation by # of frames.</td>
+  </tr>
+  <tr>
+    <td>RadialMultiplier</td>
+    <td>float</td>
+    <td>Fakes simulation by multiplying this by the vertex's current velocity. 0 = no faking, 1 = full faking. Radial-based Only.</td>
+  </tr>
+  <tr>
+    <td>NeighborMultiplier</td>
+    <td>float</td>
+    <td>Fakes simulation by multiplying this by the vertex's current velocity. 0 = no faking, 1 = full faking. Neighbor-based Only.</td>
+  </tr>
+  <tr>
+    <td>SimpleNormalCalculation</td>
+    <td>bool</td>
+    <td>Simplifies normal recalculation on skinned meshes. May cause hard edges on smooth surfaces.</td>
+  </tr>
+  <tr>
+    <td>PauseWhenOffscreen</td>
+    <td>bool</td>
+    <td>Pauses cloth simulation when Renderer.isVisible() throws false.</td>
+  </tr>
+  </table>"
+>
+Optimization
+</button>
+
+<button onclick="myFunctionClass(this)" class="button"
+style="margin-top: 10px;"
+name=
+"RadialCloth.Modifiers"
+description=
+"Class containing variables that apply modifiers to all vertices on this mesh."
+functions=
+"RADIALEDITERS <b>Modifiers</b>"
+parameters=
+"<b>RADIALEDITERS</b><table>
+  <tr>
+    <th>Name</td>
+    <th>Type</td>
+    <th>Description</td>
+  </tr>
+  <tr>
+    <td>Radius</td>
+    <td>float</td>
+    <td>Multiplier for the 'Radius' VERTEX property.</td>
+  </tr>
+  <tr>
+    <td>Bounciness</td>
+    <td>float</td>
+    <td>Multiplier for the 'Bounciness' VERTEX property.</td>
+  </tr>
+  <tr>
+    <td>Stiffness</td>
+    <td>float</td>
+    <td>Multiplier for the 'Stiffness' VERTEX property.</td>
+  </tr>
+  <tr>
+    <td>FadeSpeed</td>
+    <td>float</td>
+    <td>Multiplier for the 'FadeSpeed' VERTEX property.</td>
+  </tr>
+  <tr>
+    <td>MaxSpeed</td>
+    <td>float</td>
+    <td>Multiplier for the 'MaxSpeed' VERTEX property.</td>
+  </tr>
+  <tr>
+    <td>Offset</td>
+    <td>Vector3</td>
+    <td>Physically offsets where vertices are moving. Great for drooping/wet cloth.</td>
+  </tr>
+  </table>"
+>
+Modifiers
+</button>
+
+<div style="width:auto;height:25px;background-color: #138275;"></div>
+
+<RadialWind style="background-color: #0d5a51;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 16px;
+    font-family: arial;
+    display: block;"> RadialWind </RadialWind>
+
+<button onclick="myFunction(this)" class="button"
+style="margin-top: 10px;"
+name=
+"RadialWind.UpdateWind()"
+description=
+"Updates static RadialWind variables, setting them to the values kept in this RadialWind component. Essentially 'Applying' these values to the scene."
+functions=
+"public void <b>UpdateWind</b>();"
+parameters=
+"None"
+>
+UpdateWind()
+</button>
+
+<button onclick="myFunctionClass(this)" class="button"
+style="margin-top: 10px;"
+name=
+"RadialWind Static Variables"
+description=
+"RadialWind utilizes static variables which are applied to the scene. These values directly affect how wind is percieved by RadialCloth objects. You can edit these individually, but it is recommended to simply use the UpdateWind() function, as it is less complex."
+functions=
+"RadialWind.<b>W</b>;
+<p>RadialWind.<b>AD</b>;
+<p>RadialWind.<b>SM</b>;"
+parameters=
+"<b>RadialWind</b><table>
+  <tr>
+    <th>Name</td>
+    <th>Type</td>
+    <th>Description</td>
+  </tr>
+  <tr>
+    <td>W</td>
+    <td>Vector3</td>
+    <td>Global vector3 for Wind.</td>
+  </tr>
+  <tr>
+    <td>AD</td>
+    <td>float</td>
+    <td>Global float for AirDensity.</td>
+  </tr>
+  <tr>
+    <td>SM</td>
+    <td>float</td>
+    <td>Global float for Multiplier. simple way to increase intensity of wind.</td>
+  </tr>
+  </table>"
+>
+Static Variables
+</button>
+
+</div>
+
+<div class="column right">
+<b id="Header">Welcome!</b>
+<t id="Description" style="font-family: arial; display: block;margin-top: 10px;">Click on a function to get started.</t>
+<div style="width:auto;height:10px;background-color: #138275;margin-top: 15px;"></div>
+<t id="Functions" style="font-family: arial; display: block;margin-top: 15px;margin-bottom: 15px;"></t>
+<div style="width:auto;height:10px;background-color: #138275;"></div>
+<b id="ParamDescription" style="font-family: arial; display: block;margin-top: 10px;"></b>
+<t id="Parameters" style="font-family: arial; display: block;margin-top: 10px;"></t>
+</div>
+
+<hidden id="Hidden" parameters="-Parameters-"parameters2="-Properties-"></hidden>
+<script>
+function myFunction(thiscode) {
+    Header.innerHTML = thiscode.getAttribute("name");
+    Description.innerHTML = thiscode.getAttribute("description");
+    Functions.innerHTML = thiscode.getAttribute("functions");
+    Parameters.innerHTML = thiscode.getAttribute("parameters");
+    ParamDescription.innerHTML = Hidden.getAttribute("parameters");
+}
+function myFunctionClass(thiscode) {
+    Header.innerHTML = thiscode.getAttribute("name");
+    Description.innerHTML = thiscode.getAttribute("description");
+    Functions.innerHTML = thiscode.getAttribute("functions");
+    Parameters.innerHTML = thiscode.getAttribute("parameters");
+    ParamDescription.innerHTML = Hidden.getAttribute("parameters2");
+}
+</script>
